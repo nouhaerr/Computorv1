@@ -1,6 +1,7 @@
 import re
 import computor as cp
 
+
 def free_form_entry_normalization(normalized_poly: str) -> str:
     # 1. Standardize variable casing cleanly
     polynomial_clean = normalized_poly.replace('x', 'X')
@@ -22,6 +23,7 @@ def free_form_entry_normalization(normalized_poly: str) -> str:
     normalized_poly = polynomial_clean
 
     return normalized_poly
+
 
 def validate_input_syntax(expression: str) -> bool:
     """Bonus 1: Free-Form Syntax & Vocabulary Error Management"""
@@ -157,6 +159,7 @@ def validate_input_syntax(expression: str) -> bool:
                     
     return True
 
+
 def print_intermediate_steps(a:float, b: float, c: float, delta: float = None, special_state: str = None, degree: int = None):
     if a.is_integer():
         a = int(a)
@@ -250,27 +253,46 @@ def get_natural_reduced_form(terms: dict) -> str:
 
 
 def format_as_irreducible_fraction(decimal_value: float) -> str:
-    """Bonus 4: Irreducible Fraction Converter"""
-    if decimal_value == int(decimal_value):
-        return f"{int(decimal_value)}"
+    """Bonus 4: Display an irreducible Fraction whenever possible"""
+    # Integer
+    if decimal_value.is_integer():
+        return str(int(decimal_value))
         
     def get_custom_gcd(x: int, y: int) -> int:
         while y:
             x, y = y, x % y
-        return -x if x < 0 else x
+        return abs(x)
+    # Convert to a decimal string (max 12 significant digits)
+    s = f"{decimal_value:.12g}"
+     # Scientific notation -> keep decimal representation
+    if "e" in s or "E" in s:
+        return cp.format_solution(decimal_value)
+    
+    negative = s.startswith("-")
+    if negative:
+        s = s[1:]
 
-    precision_multiplier = 100000000
-    numerator = int(round(decimal_value * precision_multiplier))
-    denominator = precision_multiplier
-    
-    common_factor = get_custom_gcd(numerator, denominator)
-    reduced_num = numerator // common_factor
-    reduced_den = denominator // common_factor
-    
-    if reduced_den > 10000:
-        return f"{cp.format_solution(decimal_value)}"
-        
-    return f"{reduced_num}/{reduced_den}"
+    if "." in s:
+        integer, decimal = s.split(".")
+        numerator = int(integer + decimal)
+        denominator = 10 ** len(decimal)
+    else:
+        numerator = int(s)
+        denominator = 1
+
+    if negative:
+        numerator = -numerator
+
+    g = get_custom_gcd(numerator, denominator)
+    numerator //= g
+    denominator //= g
+
+    # If the denominator becomes too large, it's probably an irrational approximation
+    # (e.g. sqrt(2), sqrt(7)/4, etc.). Keep the decimal output.
+    if denominator > 10000:
+        return cp.format_solution(decimal_value)
+
+    return f"{numerator}/{denominator}"
 
 
 def print_time(parse_time: float, reduce_time: float, solve_time: float, total_time: float):
