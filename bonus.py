@@ -264,9 +264,7 @@ def format_as_irreducible_fraction(decimal_value: float) -> str:
         return abs(x)
     # Convert to a decimal string (max 12 significant digits)
     s = f"{decimal_value:.12g}"
-     # Scientific notation -> keep decimal representation
-    if "e" in s or "E" in s:
-        return cp.format_solution(decimal_value)
+
     
     negative = s.startswith("-")
     if negative:
