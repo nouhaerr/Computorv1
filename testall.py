@@ -1,5 +1,5 @@
 import computor 
-computor.bonus_var = 1
+computor.bonus_var = 0
 from computor import computorv1
 
 
